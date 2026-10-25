@@ -34,6 +34,8 @@ When the menu bar shows more than one account of a provider, each mark carries a
 
 Claude and Codex accounts show a ↺ tag with the number of available rate-limit resets. It turns orange when the soonest one expires within 7 days and red within 48 hours. Hover or click the tag to see when each reset expires. To spend one, hover its row, choose Use, then Reset.
 
+Settings → Appearance includes Increase Transparency. Enter ↑ ↑ ↓ ↓ ← → ← → B A while the panel is open to reveal Party Mode and Drunk Mode there. Turning off Party Mode hides both controls and restores your transparency preference; quitting also clears the effect. macOS Reduce Transparency and Increase Contrast pause these effects.
+
 ## Building
 
 Requires macOS 15 or later and Swift 6.2.
