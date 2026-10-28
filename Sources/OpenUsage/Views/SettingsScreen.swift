@@ -4,6 +4,7 @@ struct SettingsScreen: View {
     @Environment(AppContainer.self) private var container
     @Environment(LayoutStore.self) private var layout
     @Environment(WidgetDataStore.self) private var dataStore
+    @Environment(PopoverTransparencyStore.self) private var transparency
     @AppStorage(AppearanceSetting.key) private var appearance = AppearanceSetting.system
     @AppStorage(TimeFormatSetting.key) private var timeFormat = TimeFormatSetting.auto
     @State private var launchAtLogin = LaunchAtLoginSetting()
@@ -24,15 +25,7 @@ struct SettingsScreen: View {
                         ShortcutRecorderField(name: .togglePopover, isVisible: layout.screen == .settings)
                     }
                 }
-                section("Appearance") {
-                    row("Theme") {
-                        picker($appearance, options: AppearanceSetting.allCases, label: \.label)
-                            .onChange(of: appearance) { AppearanceSetting.applyCurrent() }
-                    }
-                    row("Time Format") {
-                        picker($timeFormat, options: TimeFormatSetting.allCases, label: \.label)
-                    }
-                }
+                appearanceSection
                 usageDisplaySection
                 notificationsSection
             }
@@ -43,6 +36,43 @@ struct SettingsScreen: View {
             if screen == .settings {
                 scrollPosition.scrollTo(edge: .top)
                 launchAtLogin.refreshStatus()
+            }
+        }
+    }
+
+    private var appearanceSection: some View {
+        @Bindable var transparency = transparency
+        return section("Appearance") {
+            row("Theme") {
+                picker($appearance, options: AppearanceSetting.allCases, label: \.label)
+                    .onChange(of: appearance) { AppearanceSetting.applyCurrent() }
+            }
+            row("Time Format") {
+                picker($timeFormat, options: TimeFormatSetting.allCases, label: \.label)
+            }
+            row("Increase Transparency") {
+                Toggle("Increase Transparency", isOn: $transparency.increaseTransparency)
+                    .settingsSwitchStyle()
+                    .disabled(transparency.secretCodeActive)
+            }
+            if transparency.secretCodeActive {
+                inlineNotice("Party mode is on, so this stays paused.")
+            } else if transparency.isPaused {
+                inlineNotice("macOS Reduce Transparency or Increase Contrast is on, so this stays paused.")
+            }
+            // The code reveals both controls. Leaving the party hides them and clears Drunk Mode.
+            if transparency.secretCodeActive {
+                row("Party Mode") {
+                    Toggle("Party Mode", isOn: $transparency.partyModeActive)
+                        .settingsSwitchStyle()
+                }
+                row("Drunk Mode") {
+                    Toggle("Drunk Mode", isOn: $transparency.drunkMode)
+                        .settingsSwitchStyle()
+                }
+                if transparency.partyPaused {
+                    inlineNotice("macOS Reduce Transparency or Increase Contrast is on, so the party stays paused.")
+                }
             }
         }
     }
@@ -77,6 +107,15 @@ struct SettingsScreen: View {
                     if enabled { AppNotifications.shared.requestAuthorization() }
                 }
         }
+    }
+
+    private func inlineNotice(_ text: String) -> some View {
+        Text(text)
+            .font(.caption)
+            .foregroundStyle(Theme.notice)
+            .padding(.horizontal, 12)
+            .padding(.bottom, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {

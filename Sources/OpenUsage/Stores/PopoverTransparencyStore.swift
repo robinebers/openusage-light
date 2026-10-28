@@ -22,7 +22,7 @@ final class PopoverTransparencyStore {
     }
 
     /// Ephemeral easter-egg state. Never persisted: it clears on quit, but survives panel open/close
-    /// within a run, so the only way out is re-typing the code.
+    /// within a run. Re-typing the code or turning off Party Mode exits it.
     private(set) var secretCodeActive = false
     /// "Drunk Mode" — escalates the party into the woozy, barely-readable state. Only meaningful while
     /// `secretCodeActive`; cleared whenever the egg turns off.
